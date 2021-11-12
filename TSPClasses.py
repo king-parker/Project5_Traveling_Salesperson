@@ -7,6 +7,13 @@ import random
 import time
 
 
+## Variables
+# route : ([City]) list of cities that make a tour
+#  cost : (int) cost of the given route
+# 
+## Methods
+#   _costOfRoute() : helper function for constructor, computes cost of the route
+# enumerateEdges() : used by GUI to display the route
 
 class TSPSolution:
 	def __init__( self, listOfCities):
@@ -53,6 +60,15 @@ def nameForInt( num ):
 
 
 
+## Variables
+#  _difficulty : (string) solve difficulty which impacts edges made between cities
+#      _cities : (City) list of cities to traverse for problem
+# _edge_exists : (2D list of ints) matrix of which paths between cities exist
+# 
+## Methods
+#                    getCities() : returns _cities
+#                    randperm(n) : helper function
+# thinEdges(deterministic=False) : helper function
 
 class Scenario:
 
@@ -131,6 +147,18 @@ class Scenario:
 
 
 
+## Variables
+#         _x : (float) x coordinate of city
+#         _y : (float) y coordinate of city
+# _elevation : (float) elevation of city
+#  _scenario : (Sceneario) problem scenario, used to calculate cost to a neighboring city
+#     _index : (int) index number of city
+#      _name : (string) name of city
+# 
+## Methods
+# setIndexAndName(index, name) : sets _index and _name
+#        setScenario(scenario) : sets _scenario
+#           costTo(other_city) : calculates cost from the current city to other_city, returns infinity if no path
 
 class City:
 	def __init__( self, x, y, elevation=0.0 ):
