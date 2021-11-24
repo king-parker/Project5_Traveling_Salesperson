@@ -100,6 +100,9 @@ class ProblemNode:
     def getTour(self):
         return self.tour
 
+    def getRoute(self):
+        return [self.cities[i] for i in self.tour]
+
     def getDepth(self):
         return self.depth
 
@@ -124,3 +127,13 @@ class ProblemNode:
             city = self.cities[self.tour[i]]._name
             cities.append(city)
         return delimeter.join(cities)
+
+    def toString_state(self):
+        result = []
+        result.append('Cost Matrix:')
+        result.append(self.toString_costMatrix())
+        result.append('Bound: ' + self.toString_bound())
+        result.append('Tour: ' + self.toString_tour())
+        result.append('Depth: ' + str(self.depth))
+        result.append('')
+        return '\n'.join(result)
