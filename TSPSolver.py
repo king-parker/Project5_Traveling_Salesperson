@@ -14,8 +14,8 @@ else:
 import time
 import numpy as np
 from TSPClasses import *
-import heapq
-import itertools
+from PriorityQueue import PriorityQueue as pq
+from ProblemNode import ProblemNode as pn
 
 
 
@@ -142,9 +142,81 @@ class TSPSolver:
 	'''
 		
 	def branchAndBound( self, time_allowance=60.0 ):
-		pass
+		results = {}
+		cities = self._scenario.getCities()
+		ncities = len(cities)
+		foundTour = False
+		count = 0
+		maxQueueSize = 0
+		totalStates = 0
+		prunedStates = 0
+		queue = pq()
+		parentNode = pn.parentNode(self._scenario)
+		parentPriority = self.calcPriority(parentNode, time.time(), time_allowance)
+		queue.push(parentNode, parentPriority)
+		initialTime = 5
+		initialResults = self.greedy(initialTime)
+		if initialResults['cost'] == math.inf:
+			initialResults = self.defaultRandomTour(initialTime)
+			if initialResults['cost'] == math.inf:
+				bssf = TSPSolution([])
+				bssf.cost = math.inf
+			else:
+				bssf = initialResults['soln']
+		else:
+			bssf = initialResults['soln']
+		start_time = time.time()
+		# TODO
+		while not queue.isEmpty() and time.time()-start_time < time_allowance:
+			problem = queue.pop()
+			if problem.getBound() < bssf.cost:
+				for cityIndex in range(ncities):
+					if problem.getCostMatrix()[problem.getTour()[-1]][cityIndex] < math.inf:
+						totalStates += 1
+						childNode = pn.fromParent(problem, cityIndex)
+						solCheck = self.checkSolution(childNode, ncities)
+						if solCheck:
+							count += 1
+							if solCheck.cost < bssf.cost:
+								bssf = solCheck
+								foundTour = True
+						elif childNode.getBound() < bssf.cost:
+							childPriority = self.calcPriority(childNode, start_time, time_allowance)
+							queue.push(childNode, childPriority)
+						else:
+							prunedStates += 1
+				currSize = len(queue.heap)
+				if currSize > maxQueueSize:
+					maxQueueSize = currSize
+			else:
+				prunedStates +=1
+		end_time = time.time()
+		results['cost'] = bssf.cost if foundTour else math.inf
+		results['time'] = end_time - start_time
+		results['count'] = count
+		results['soln'] = bssf
+		results['max'] = maxQueueSize
+		results['total'] = totalStates
+		results['pruned'] = prunedStates
+		return results
 
+	def calcPriority(self, state, startTime, timeAllowance):
+		DEPTH_CONST = 100
+		priority = state.getBound()
+		if (time.time()-startTime) < (timeAllowance/2):
+			priority -= DEPTH_CONST * state.getDepth()
+		else:
+			priority -= DEPTH_CONST * state.getDepth() * state.getDepth()
+		return priority
 
+	def checkSolution(self, state, numCities):
+		solution = None
+		route = state.getRoute()
+		if len(route) >= numCities:
+			solution = TSPSolution(route)
+			if solution.cost >= math.inf:
+				solution = None
+		return solution
 
 	''' <summary>
 		This is the entry point for the algorithm you'll write for your group project.
