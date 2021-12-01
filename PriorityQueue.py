@@ -10,6 +10,8 @@ class PriorityQueue:
         self.finder = {}
         pass
 
+    # Add item to the priority queue using the given priority
+    # If the item was already added, this method will update the priority
     def push(self, item, priority):
         if item in self.finder:
             self.removeItem(item)
@@ -19,6 +21,7 @@ class PriorityQueue:
         heapq.heappush(self.heap, entry)
         pass
 
+    # Remove and return the item from the queue with the smallest priority
     def pop(self):
         while not self.isEmpty():
             priority, count, item = heapq.heappop(self.heap)
@@ -27,10 +30,13 @@ class PriorityQueue:
                 return item
         raise RuntimeError("Empty queue cannot be popped")
 
+    # Safely deletes a specific item from the queue
+    # Used for updating the priority of an item
     def removeItem(self, item):
         entry = self.finder[item]
         entry[-1] = self.REMOVED
 
+    # Returns true if nothing is in the queue, false otherwise
     def isEmpty(self):
         if self.heap:
             return False

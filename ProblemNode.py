@@ -3,16 +3,23 @@ from copy import copy, deepcopy
 
 
 class ProblemNode:
+    # List of cities for the problem
     cities = None
+    # Number of cities for the problem
     ncities = None
+    # Reduced cost matrix for the cost of paths between cities
     costMatrix = None
+    # Lower cost bound predicted for the state
     bound = None
+    # Cities in the tour for the state
     tour = None
+    # Depth of the stat in the tree
     depth = None
 
     def __init__(self):
         pass
 
+    # Factory method for creating the starting node of the problem
     @classmethod
     def parentNode(cls, scenario, startCity = 0):
         node = cls.__new__(cls)
@@ -25,6 +32,7 @@ class ProblemNode:
         node.depth = 0
         return node
 
+    # Factory method for creating children node from a parent node in the problem
     @classmethod
     def fromParent(cls, parent, nextCity):
         node = cls.__new__(cls)
@@ -36,21 +44,25 @@ class ProblemNode:
         node.depth = copy(parent.getDepth())
         node.processState(nextCity)
         return node
-        pass
 
+    # Method to make the changes from the parent's state based on the next selected city in the tour
     def processState(self, nextCity):
         prevCity = self.tour[-1]
+        # Add next city to the tour
         self.tour.append(nextCity)
         self.bound += self.costMatrix[prevCity][nextCity]
+        # Mark the routes leaving the previous city and entering the next city as unavailable
         for i in range(self.ncities):
             self.costMatrix[prevCity][i] = inf
             self.costMatrix[i][nextCity] = inf
         self.costMatrix[nextCity][prevCity] = inf
+        # Determine the new reduced cost matrix
         self.reduceCostMaxtrix()
         self.depth += 1
         pass
 
     def reduceCostMaxtrix(self):
+        # Check for the smallest cost in each row
         for row in range(self.ncities):
             minCost = inf
             for col in range(self.ncities):
@@ -58,6 +70,7 @@ class ProblemNode:
                 if checkCost < minCost:
                     minCost = checkCost
                 pass
+            # Update the cost of the row if the smallest cost was less than infinity
             if minCost < inf:
                 for col in range(self.ncities):
                     self.costMatrix[row][col] -= minCost
@@ -65,6 +78,7 @@ class ProblemNode:
                 self.bound += minCost
             pass
 
+        # Check for the smallest cost in each column
         for col in range(self.ncities):
             minCost = inf
             for row in range(self.ncities):
@@ -72,6 +86,7 @@ class ProblemNode:
                 if checkCost < minCost:
                     minCost = checkCost
                 pass
+            # Update the cost of the column if the smallest cost was less than infinity
             if minCost < inf:
                 for row in range(self.ncities):
                     self.costMatrix[row][col] -= minCost
@@ -80,6 +95,7 @@ class ProblemNode:
             pass
         pass
 
+    # Create cost matrix for the starting node for the problem
     def createCostMatrix(self):
         costMatrix = []
         for row in range(self.ncities):
