@@ -202,6 +202,9 @@ class TSPSolver:
 				# Prune tree if bound is higher than the BSSF
 				prunedStates +=1
 		end_time = time.time()
+		currSize = len(queue.heap)
+		if currSize > 0:
+			prunedStates += currSize
 		results['cost'] = bssf.cost if foundTour else math.inf
 		results['time'] = end_time - start_time
 		results['count'] = count
